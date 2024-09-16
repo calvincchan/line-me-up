@@ -20,12 +20,12 @@ import routerProvider, {
   NavigateToResource,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
-import dataProvider from "@refinedev/simple-rest";
+import { dataProvider, liveProvider } from "@refinedev/supabase";
 import { useFormContext } from "react-hook-form";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-
 import { PostCreate, PostEdit, PostList } from "../src/pages/posts";
 import PublicScreen from "./pages/public_screen";
+import { supabaseClient } from "./utilities/supabase-client";
 
 /**
  *  mock auth credentials to simulate authentication
@@ -181,7 +181,8 @@ const App: React.FC = () => {
         <RefineSnackbarProvider>
           <Refine
             authProvider={authProvider}
-            dataProvider={dataProvider("https://api.fake-rest.refine.dev")}
+            dataProvider={dataProvider(supabaseClient)}
+            liveProvider={liveProvider(supabaseClient)}
             routerProvider={routerProvider}
             notificationProvider={useNotificationProvider}
             resources={[
