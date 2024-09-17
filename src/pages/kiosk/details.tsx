@@ -90,6 +90,7 @@ export const KioskDetails: React.FC = () => {
       .from("visit")
       .insert({
         visitor: visitorData.id,
+        visitor_name: visitorData.name,
         status: "Waiting",
         entered_at: new Date().toISOString(),
       })
@@ -103,8 +104,7 @@ export const KioskDetails: React.FC = () => {
 
     /* Process to status screen */
     setSubmitting(false);
-    console.log(visitorData);
-    navigate("/kiosk/submitted", { state: { visitor: visitorData.id } });
+    navigate("/kiosk/submitted", { state: { visitId: visitData.id } });
   };
 
   return (

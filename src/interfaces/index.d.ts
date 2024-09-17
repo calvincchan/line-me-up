@@ -33,6 +33,7 @@ export interface IVisitor {
 export interface IVisit {
   id: number;
   visitor: number;
+  visitor_name: string;
   status: "Waiting" | "Serving" | "Completed" | "Cancelled";
   station: number | null;
   created_at?: string;
