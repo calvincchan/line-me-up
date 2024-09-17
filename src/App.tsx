@@ -24,7 +24,8 @@ import { dataProvider, liveProvider } from "@refinedev/supabase";
 import { useFormContext } from "react-hook-form";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import { PostCreate, PostEdit, PostList } from "../src/pages/posts";
-import PublicScreen from "./pages/public_screen";
+import { PublicScreen } from "./pages/bigscreen";
+import { KioskDetails, KioskSubmitted, KioskWelcome } from "./pages/kiosk";
 import { supabaseClient } from "./utilities/supabase-client";
 
 /**
@@ -175,7 +176,7 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <ThemeProvider theme={RefineThemes.Blue}>
+      <ThemeProvider theme={RefineThemes.Orange}>
         <CssBaseline />
         <GlobalStyles styles={{ html: { WebkitFontSmoothing: "auto" } }} />
         <RefineSnackbarProvider>
@@ -308,7 +309,12 @@ const App: React.FC = () => {
                   path="/update-password"
                   element={<AuthPage type="updatePassword" />}
                 />
-                <Route path="/public-screen" element={<PublicScreen />} />
+                <Route path="/bigscreen" element={<PublicScreen />} />
+                <Route path="/kiosk">
+                  <Route index element={<KioskWelcome />} />
+                  <Route path="details" element={<KioskDetails />} />
+                  <Route path="submitted" element={<KioskSubmitted />} />
+                </Route>
               </Route>
 
               <Route
