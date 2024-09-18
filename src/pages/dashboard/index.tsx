@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -79,7 +80,14 @@ export const Dashboard: React.FC = () => {
                 : "--"
             }`}
           />
-          <CardContent>(to be added)</CardContent>
+          <CardContent>
+            {!myStation && (
+              <Alert severity="info">
+                You are not serving any station. Please check in to start
+                serving.
+              </Alert>
+            )}
+          </CardContent>
         </Card>
         <Card>
           <CardHeader title="All Stations" />
