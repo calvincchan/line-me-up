@@ -70,6 +70,7 @@ export interface IStation {
   name: string;
   status: IStationStatus;
   opened_by: string | null;
+  opened_by_name: string | null;
   opened_at: string | null;
   serving_visit: number | null;
 }
