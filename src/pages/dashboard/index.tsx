@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Card,
+  CardActions,
   CardContent,
   CardHeader,
   CircularProgress,
@@ -20,7 +21,13 @@ import dayjs from "dayjs";
 import React, { useMemo } from "react";
 import { VisitTable } from "../../components/visit-table";
 import { IMember, IStation, IVisit } from "../../interfaces";
-import { checkInStation, checkOutStation } from "../../utilities/app-sdk";
+import {
+  callNextVisitor,
+  checkInStation,
+  checkOutStation,
+  completeService,
+  startService,
+} from "../../utilities/app-sdk";
 
 export const Dashboard: React.FC = () => {
   const { data: user } = useGetIdentity<IMember>();
@@ -43,19 +50,20 @@ export const Dashboard: React.FC = () => {
     );
   }, [stationList, user]);
 
+  /* check if user can open a station */
   const canOpenStation = useMemo(() => {
     return myStation === null;
   }, [myStation]);
 
   const { data: visitList, isLoading: visitLoading } = useList<IVisit>({
     resource: "visit",
+    liveMode: "auto",
     sorters: [
       {
         field: "created_at",
         order: "desc",
       },
     ],
-    liveMode: "auto",
   });
 
   return (
@@ -67,8 +75,11 @@ export const Dashboard: React.FC = () => {
           </Typography>
           <Typography variant="h4">Welcome, {user?.name}</Typography>
         </Box>
-        <Card>
+        <Card variant="outlined">
           <CardHeader
+            sx={{
+              backgroundColor: myStation ? "lightgray" : "",
+            }}
             title={
               myStation
                 ? `My Station: ${myStation.name}`
@@ -81,15 +92,69 @@ export const Dashboard: React.FC = () => {
             }`}
           />
           <CardContent>
-            {!myStation && (
+            {canOpenStation && (
               <Alert severity="info">
                 You are not serving any station. Please check in to start
                 serving.
               </Alert>
             )}
+            {myStation && myStation.status === "Calling" && (
+              <>
+                <Typography variant="h4">
+                  ⏳ Calling: {myStation.visitor_name}{" "}
+                </Typography>
+                <Typography variant="h6">
+                  Called: {dayjs(myStation.called_at).format("h:mm A")}
+                </Typography>
+              </>
+            )}
+            {myStation && myStation.status === "Serving" && (
+              <>
+                <Typography variant="h4">
+                  🚀 Serving: {myStation.visitor_name}
+                </Typography>
+                <Typography variant="h6">
+                  Started: {dayjs(myStation.served_at).format("h:mm A")}
+                </Typography>
+              </>
+            )}
           </CardContent>
+          <CardActions>
+            {myStation && myStation.status === "Open" && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => callNextVisitor(myStation.id)}
+                >
+                  Call Next Visitor
+                </Button>
+                <Button>Close</Button>
+              </>
+            )}
+            {myStation && myStation.status === "Calling" && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => startService(myStation.id)}
+                >
+                  Start Service
+                </Button>
+                <Button>Skip Visitor</Button>
+              </>
+            )}
+            {myStation && myStation.status === "Serving" && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => completeService(myStation.id)}
+                >
+                  Complete Service
+                </Button>
+              </>
+            )}
+          </CardActions>
         </Card>
-        <Card>
+        <Card variant="outlined">
           <CardHeader title="All Stations" />
           {stationLoading ? (
             <CircularProgress />
@@ -151,7 +216,7 @@ export const Dashboard: React.FC = () => {
             </Table>
           )}
         </Card>
-        <Card>
+        <Card variant="outlined">
           <CardHeader
             title="Waitlist"
             subheader={`People waiting: ${visitList?.total || "--"}`}

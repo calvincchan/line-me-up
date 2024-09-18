@@ -1,18 +1,3 @@
-export interface ICategory {
-  id: number;
-  title: string;
-}
-
-export type IStatus = "published" | "draft" | "rejected";
-
-export interface IPost {
-  id: number;
-  title: string;
-  content: string;
-  status: IStatus;
-  category: ICategory;
-}
-
 export type Nullable<T> = {
   [P in keyof T]: T[P] | null;
 };
@@ -32,6 +17,7 @@ export interface IVisitor {
 
 export const IVisitStatus = [
   "Waiting",
+  "Calling",
   "Serving",
   "Completed",
   "Cancelled",
@@ -47,6 +33,8 @@ export interface IVisit {
   created_at?: string;
   entered_at: string | null;
   served_at: string | null;
+  served_by_name: string | null;
+  station: number | null;
   completed_at: string | null;
   cancelled_at: string | null;
 }
@@ -62,7 +50,7 @@ export interface IMember {
 export const IMemberRole = ["Owner", "Admin", "Staff"] as const;
 export type IMemberRole = (typeof IMemberRole)[number];
 
-export const IStationStatus = ["Closed", "Open", "Serving"] as const;
+export const IStationStatus = ["Closed", "Open", "Calling", "Serving"] as const;
 export type IStationStatus = (typeof IStationStatus)[number];
 
 export interface IStation {
@@ -72,5 +60,9 @@ export interface IStation {
   opened_by: string | null;
   opened_by_name: string | null;
   opened_at: string | null;
-  serving_visit: number | null;
+  /* When statis is "Calling" or "Serving" this is set to the related visit id */
+  visit: number | null;
+  visitor_name: string | null;
+  called_at: string | null;
+  served_at: string | null;
 }
