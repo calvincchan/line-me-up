@@ -1,11 +1,7 @@
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
-import Checkbox from "@mui/material/Checkbox";
 import CssBaseline from "@mui/material/CssBaseline";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { ThemeProvider } from "@mui/material/styles";
-import { Authenticated, Refine, type AuthProvider } from "@refinedev/core";
+import { Authenticated, Refine } from "@refinedev/core";
 import {
   AuthPage,
   ErrorComponent,
@@ -21,159 +17,14 @@ import routerProvider, {
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
 import { dataProvider, liveProvider } from "@refinedev/supabase";
-import { useFormContext } from "react-hook-form";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import { PostCreate, PostEdit, PostList } from "../src/pages/posts";
+import authProvider from "./auth-provider";
 import { PublicScreen } from "./pages/bigscreen";
 import { KioskDetails, KioskSubmitted, KioskWelcome } from "./pages/kiosk";
+import { MemberList, MembertEdit } from "./pages/members";
 import { supabaseClient } from "./utilities/supabase-client";
 
-/**
- *  mock auth credentials to simulate authentication
- */
-const authCredentials = {
-  email: "demo@refine.dev",
-  password: "demodemo",
-};
-
 const App: React.FC = () => {
-  const authProvider: AuthProvider = {
-    login: async ({ providerName, email }) => {
-      if (providerName === "google") {
-        window.location.href = "https://accounts.google.com/o/oauth2/v2/auth";
-        return {
-          success: true,
-        };
-      }
-
-      if (providerName === "github") {
-        window.location.href = "https://github.com/login/oauth/authorize";
-        return {
-          success: true,
-        };
-      }
-
-      if (email === authCredentials.email) {
-        localStorage.setItem("email", email);
-        return {
-          success: true,
-          redirectTo: "/",
-        };
-      }
-
-      return {
-        success: false,
-        error: {
-          message: "Login failed",
-          name: "Invalid email or password",
-        },
-      };
-    },
-    register: async (params) => {
-      if (params.email === authCredentials.email && params.password) {
-        localStorage.setItem("email", params.email);
-        return {
-          success: true,
-          redirectTo: "/",
-        };
-      }
-      return {
-        success: false,
-        error: {
-          message: "Register failed",
-          name: "Invalid email or password",
-        },
-      };
-    },
-    updatePassword: async (params) => {
-      if (params.password === authCredentials.password) {
-        //we can update password here
-        return {
-          success: true,
-        };
-      }
-      return {
-        success: false,
-        error: {
-          message: "Update password failed",
-          name: "Invalid password",
-        },
-      };
-    },
-    forgotPassword: async (params) => {
-      if (params.email === authCredentials.email) {
-        //we can send email with reset password link here
-        return {
-          success: true,
-        };
-      }
-      return {
-        success: false,
-        error: {
-          message: "Forgot password failed",
-          name: "Invalid email",
-        },
-      };
-    },
-    logout: async () => {
-      localStorage.removeItem("email");
-      return {
-        success: true,
-        redirectTo: "/login",
-      };
-    },
-    onError: async (error) => {
-      if (error.response?.status === 401) {
-        return {
-          logout: true,
-        };
-      }
-
-      return { error };
-    },
-    check: async () =>
-      localStorage.getItem("email")
-        ? {
-            authenticated: true,
-          }
-        : {
-            authenticated: false,
-            error: {
-              message: "Check failed",
-              name: "Not authenticated",
-            },
-            logout: true,
-            redirectTo: "/login",
-          },
-    getPermissions: async () => ["admin"],
-    getIdentity: async () => ({
-      id: 1,
-      name: "Jane Doe",
-      avatar:
-        "https://unsplash.com/photos/IWLOvomUmWU/download?force=true&w=640",
-    }),
-  };
-
-  const RememeberMe = () => {
-    const { register } = useFormContext();
-
-    return (
-      <FormControlLabel
-        sx={{
-          span: {
-            fontSize: "12px",
-            color: "text.secondary",
-          },
-        }}
-        color="secondary"
-        control={
-          <Checkbox size="small" id="rememberMe" {...register("rememberMe")} />
-        }
-        label="Remember me"
-      />
-    );
-  };
-
   return (
     <BrowserRouter>
       <ThemeProvider theme={RefineThemes.Orange}>
@@ -188,10 +39,9 @@ const App: React.FC = () => {
             notificationProvider={useNotificationProvider}
             resources={[
               {
-                name: "posts",
-                list: "/posts",
-                edit: "/posts/edit/:id",
-                create: "/posts/create",
+                name: "member",
+                list: "/members",
+                edit: "/members/edit/:id",
               },
             ]}
             options={{
@@ -214,13 +64,12 @@ const App: React.FC = () => {
               >
                 <Route
                   index
-                  element={<NavigateToResource resource="posts" />}
+                  element={<NavigateToResource resource="member" />}
                 />
 
-                <Route path="/posts">
-                  <Route index element={<PostList />} />
-                  <Route path="create" element={<PostCreate />} />
-                  <Route path="edit/:id" element={<PostEdit />} />
+                <Route path="/members">
+                  <Route index element={<MemberList />} />
+                  <Route path="edit/:id" element={<MembertEdit />} />
                 </Route>
               </Route>
 
@@ -236,78 +85,11 @@ const App: React.FC = () => {
                   element={
                     <AuthPage
                       type="login"
-                      rememberMe={<RememeberMe />}
-                      formProps={{
-                        defaultValues: {
-                          ...authCredentials,
-                        },
-                      }}
-                      providers={[
-                        {
-                          name: "google",
-                          label: "Sign in with Google",
-                          icon: (
-                            <GoogleIcon
-                              style={{
-                                fontSize: 24,
-                              }}
-                            />
-                          ),
-                        },
-                        {
-                          name: "github",
-                          label: "Sign in with GitHub",
-                          icon: (
-                            <GitHubIcon
-                              style={{
-                                fontSize: 24,
-                              }}
-                            />
-                          ),
-                        },
-                      ]}
+                      rememberMe={<></>}
+                      registerLink={<></>}
+                      forgotPasswordLink={<></>}
                     />
                   }
-                />
-                <Route
-                  path="/register"
-                  element={
-                    <AuthPage
-                      type="register"
-                      providers={[
-                        {
-                          name: "google",
-                          label: "Sign in with Google",
-                          icon: (
-                            <GoogleIcon
-                              style={{
-                                fontSize: 24,
-                              }}
-                            />
-                          ),
-                        },
-                        {
-                          name: "github",
-                          label: "Sign in with GitHub",
-                          icon: (
-                            <GitHubIcon
-                              style={{
-                                fontSize: 24,
-                              }}
-                            />
-                          ),
-                        },
-                      ]}
-                    />
-                  }
-                />
-                <Route
-                  path="/forgot-password"
-                  element={<AuthPage type="forgotPassword" />}
-                />
-                <Route
-                  path="/update-password"
-                  element={<AuthPage type="updatePassword" />}
                 />
                 <Route path="/bigscreen" element={<PublicScreen />} />
                 <Route path="/kiosk">

@@ -42,3 +42,13 @@ export interface IVisit {
   completed_at: string | null;
   cancelled_at: string | null;
 }
+
+export interface IMember {
+  id: string;
+  name: string;
+  email: string;
+  role: IMemberRole;
+  last_sign_in_at: string;
+}
+
+export type IMemberRole = "Owner" | "Admin" | "Staff";
