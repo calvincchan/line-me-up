@@ -190,7 +190,6 @@ const authProvider: AuthProvider = {
     try {
       const { data } = await supabaseClient.auth.getSession();
       const { session } = data;
-      console.log("🚀 ~ check: ~ session:", session);
 
       if (!session) {
         return {
