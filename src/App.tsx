@@ -18,8 +18,10 @@ import routerProvider, {
 } from "@refinedev/react-router-v6";
 import { dataProvider, liveProvider } from "@refinedev/supabase";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import { accessControlProvider } from "./access-control-provider";
 import authProvider from "./auth-provider";
 import { PublicScreen } from "./pages/bigscreen";
+import { Dashboard } from "./pages/dashboard";
 import { KioskDetails, KioskSubmitted, KioskWelcome } from "./pages/kiosk";
 import { MemberList, MembertEdit } from "./pages/members";
 import { supabaseClient } from "./utilities/supabase-client";
@@ -37,7 +39,16 @@ const App: React.FC = () => {
             liveProvider={liveProvider(supabaseClient)}
             routerProvider={routerProvider}
             notificationProvider={useNotificationProvider}
+            accessControlProvider={accessControlProvider}
             resources={[
+              {
+                name: "dashboard",
+                list: "/",
+                meta: {
+                  label: "Dashboard",
+                  icon: <Dashboard />,
+                },
+              },
               {
                 name: "member",
                 list: "/members",
@@ -62,10 +73,7 @@ const App: React.FC = () => {
                   </Authenticated>
                 }
               >
-                <Route
-                  index
-                  element={<NavigateToResource resource="member" />}
-                />
+                <Route index element={<Dashboard />} />
 
                 <Route path="/members">
                   <Route index element={<MemberList />} />

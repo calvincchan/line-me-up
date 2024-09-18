@@ -1,5 +1,5 @@
 import { AuthProvider } from "@refinedev/core";
-import { jwtDecode } from "jwt-decode";
+import { acl } from "./acl";
 import { IMember } from "./interfaces";
 import { supabaseClient } from "./utilities/supabase-client";
 
@@ -190,6 +190,7 @@ const authProvider: AuthProvider = {
     try {
       const { data } = await supabaseClient.auth.getSession();
       const { session } = data;
+      console.log("🚀 ~ check: ~ session:", session);
 
       if (!session) {
         return {
@@ -203,8 +204,13 @@ const authProvider: AuthProvider = {
         };
       }
 
-      const payload = jwtDecode<{ user_role: string }>(session.access_token);
-      userRole = payload.user_role;
+      /* retrieve user role from public.member table */
+      const { data: memberData } = await supabaseClient
+        .from("member")
+        .select<"*", IMember>("*")
+        .eq("id", session.user.id)
+        .single();
+      userRole = memberData?.role || "None";
     } catch (error: any) {
       return {
         authenticated: false,
@@ -224,8 +230,8 @@ const authProvider: AuthProvider = {
       localStorage.removeItem("memberRole");
     }
 
-    /* TODO: immediately load permission table */
-    // await acl.load(userRole);
+    /* Immediately load permission table */
+    await acl.load(userRole);
 
     return {
       authenticated: true,
@@ -244,7 +250,7 @@ const authProvider: AuthProvider = {
     const { data } = await supabaseClient.auth.getUser();
     if (data?.user) {
       const { data: metadata } = await supabaseClient
-        .from("team_member")
+        .from("member")
         .select<"*", IMember>("*")
         .eq("id", data.user.id)
         .single();
