@@ -30,11 +30,19 @@ export interface IVisitor {
   last_visited_at: string;
 }
 
+export const IVisitStatus = [
+  "Waiting",
+  "Serving",
+  "Completed",
+  "Cancelled",
+] as const;
+export type IVisitStatus = (typeof IVisitStatus)[number];
+
 export interface IVisit {
   id: number;
   visitor: number;
   visitor_name: string;
-  status: "Waiting" | "Serving" | "Completed" | "Cancelled";
+  status: IVisitStatus;
   station: number | null;
   created_at?: string;
   entered_at: string | null;
@@ -51,4 +59,17 @@ export interface IMember {
   last_sign_in_at: string;
 }
 
-export type IMemberRole = "Owner" | "Admin" | "Staff";
+export const IMemberRole = ["Owner", "Admin", "Staff"] as const;
+export type IMemberRole = (typeof IMemberRole)[number];
+
+export const IStationStatus = ["Closed", "Open", "Serving"] as const;
+export type IStationStatus = (typeof IStationStatus)[number];
+
+export interface IStation {
+  id: number;
+  name: string;
+  status: IStationStatus;
+  opened_by: string | null;
+  opened_at: string | null;
+  serving_visit: number | null;
+}

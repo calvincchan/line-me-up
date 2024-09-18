@@ -54,6 +54,11 @@ const App: React.FC = () => {
                 list: "/members",
                 edit: "/members/edit/:id",
               },
+              {
+                name: "station",
+                list: "/stations",
+                edit: "/stations/edit/:id",
+              },
             ]}
             options={{
               syncWithLocation: true,
