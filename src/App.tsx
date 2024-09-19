@@ -1,3 +1,4 @@
+import { Box, Button, Stack } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { ThemeProvider } from "@mui/material/styles";
@@ -17,7 +18,7 @@ import routerProvider, {
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
 import { dataProvider, liveProvider } from "@refinedev/supabase";
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Outlet, Route, Routes } from "react-router-dom";
 import { accessControlProvider } from "./access-control-provider";
 import authProvider from "./auth-provider";
 import { PublicScreen } from "./pages/bigscreen";
@@ -89,7 +90,7 @@ const App: React.FC = () => {
               <Route
                 element={
                   <Authenticated key="auth-pages" fallback={<Outlet />}>
-                    <NavigateToResource resource="posts" />
+                    <NavigateToResource resource="dashboard" />
                   </Authenticated>
                 }
               >
@@ -98,12 +99,30 @@ const App: React.FC = () => {
                   element={
                     <AuthPage
                       type="login"
-                      rememberMe={<></>}
-                      registerLink={<></>}
-                      forgotPasswordLink={<></>}
+                      rememberMe={false}
+                      registerLink={false}
+                      forgotPasswordLink={false}
+                      renderContent={(content, title) => (
+                        <>
+                          <Stack spacing={2} textAlign="center">
+                            <Box>
+                              {title}
+                              {content}
+                            </Box>
+                            <Link to="/bigscreen" target="bigscreen">
+                              <Button>View Public Screen</Button>
+                            </Link>
+                            <Link to="/kiosk" target="kiosk">
+                              <Button>View Kiosk</Button>
+                            </Link>
+                          </Stack>
+                        </>
+                      )}
                     />
                   }
                 />
+              </Route>
+              <Route>
                 <Route path="/bigscreen" element={<PublicScreen />} />
                 <Route path="/kiosk">
                   <Route index element={<KioskWelcome />} />
