@@ -1,10 +1,16 @@
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Card, CardContent, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { PostgrestError } from "@supabase/postgrest-js";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { IVisit, IVisitor, IVisitorDetailsForm } from "../../interfaces";
 import { cleanNumber } from "../../utilities/clean-number";
 import { supabaseClient } from "../../utilities/supabase-client";
@@ -146,7 +152,15 @@ export const KioskDetails: React.FC = () => {
             <Typography variant="body2">
               For testing purpose, no real SMS will be sent.
             </Typography>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                mt: 5,
+                gap: 2,
+              }}
+            >
               <LoadingButton
                 variant="contained"
                 sx={{ width: "60%" }}
@@ -155,6 +169,7 @@ export const KioskDetails: React.FC = () => {
               >
                 Join the Line
               </LoadingButton>
+              <Button onClick={() => navigate("..")}>Cancel</Button>
             </Box>
           </Box>
         </CardContent>

@@ -7,7 +7,7 @@ interface Props {
 
 export const KioskWrapper: React.FC<Props> = ({ children }) => {
   return (
-    <Box sx={{ backgroundColor: "primary.main", height: "100vh" }}>
+    <Box sx={{ backgroundColor: "primary.light", height: "100vh" }}>
       <Container maxWidth="sm" sx={{ pt: 10 }}>
         {children}
       </Container>

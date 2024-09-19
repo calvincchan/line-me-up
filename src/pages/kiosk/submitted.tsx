@@ -1,12 +1,19 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  Typography,
+} from "@mui/material";
 import React from "react";
-import { useLocation } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { KioskWrapper } from "./wrapper";
 
 export const KioskSubmitted: React.FC = () => {
   const location = useLocation();
   const visitId = location.state?.visitId || null;
+  const navigate = useNavigate();
 
   return (
     <KioskWrapper>
@@ -17,6 +24,7 @@ export const KioskSubmitted: React.FC = () => {
               {import.meta.env.VITE_LOCATION_NAME}
             </Typography>
             <Typography variant="h5">Thank you for checking in!</Typography>
+            <Typography variant="h5">Estimated time: (TODO)</Typography>
             {visitId && (
               <Typography variant="h5">
                 You can continue to check your wait status at:
@@ -25,6 +33,15 @@ export const KioskSubmitted: React.FC = () => {
               </Typography>
             )}
             <Typography>(QR Code)</Typography>
+            <Box>
+              <Button
+                variant="contained"
+                sx={{ width: "60%" }}
+                onClick={() => navigate("..")}
+              >
+                Finish
+              </Button>
+            </Box>
           </Stack>
         </CardContent>
       </Card>
