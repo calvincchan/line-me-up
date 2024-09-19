@@ -10,21 +10,12 @@ import { BigscreenWrapper } from "./wrapper";
 dayjs.extend(relativeTime);
 
 export const PublicScreen: React.FC = () => {
-  const [records, setRecords] = React.useState<IVisit[]>([]);
-
   const { data: visitList, isLoading: visitLoading } = useList<IVisit>({
     resource: "visit",
-    filters: [
-      {
-        field: "status",
-        operator: "in",
-        value: ["Waiting", "Serving"],
-      },
-    ],
     sorters: [
       {
-        field: "created_at",
-        order: "desc",
+        field: "entered_at",
+        order: "asc",
       },
     ],
     liveMode: "auto",
@@ -36,7 +27,7 @@ export const PublicScreen: React.FC = () => {
         {import.meta.env.VITE_LOCATION_NAME} Waitlist
       </Typography>
       <Typography variant="h5" sx={{ textAlign: "center" }}>
-        2 waiting
+        {visitList?.total} waiting
       </Typography>
       <VisitTable data={visitList?.data ?? []} loading={visitLoading} />
     </BigscreenWrapper>

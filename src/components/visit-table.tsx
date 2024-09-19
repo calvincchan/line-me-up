@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@mui/material";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import { IVisit } from "../interfaces";
 
 interface Prop {
@@ -21,6 +22,15 @@ export const VisitTable: React.FC<Prop> = ({
   showStatus = false,
   loading = false,
 }) => {
+  const [counter, setCounter] = useState(0);
+  /* force re-render wait time every 10 seconds */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCounter((prev) => prev + 1);
+    }, 10 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const fullSpan = showStatus ? 4 : 3;
   return (
     <TableContainer>
@@ -28,9 +38,9 @@ export const VisitTable: React.FC<Prop> = ({
         <TableHead>
           <TableRow>
             <TableCell></TableCell>
-            <TableCell width="60%">Name</TableCell>
+            <TableCell>Name</TableCell>
             {showStatus && <TableCell>Status</TableCell>}
-            <TableCell align="right">Waited</TableCell>
+            <TableCell>Waited</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -46,9 +56,15 @@ export const VisitTable: React.FC<Prop> = ({
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>
                   <strong>{record.visitor_name}</strong>
+                  {record.status === "Calling" && (
+                    <span> → Proceed to {record.station_name}</span>
+                  )}
+                  {record.status === "Serving" && (
+                    <span> → {record.station_name}</span>
+                  )}
                 </TableCell>
                 {showStatus && <TableCell>{record.status}</TableCell>}
-                <TableCell align="right">
+                <TableCell key={`visit-table-waited-${counter}`}>
                   {dayjs(record.entered_at).fromNow(true)}
                 </TableCell>
               </TableRow>
