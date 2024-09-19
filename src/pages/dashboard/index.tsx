@@ -252,7 +252,7 @@ export const Dashboard: React.FC = () => {
         <Card variant="outlined">
           <CardHeader
             title="Waitlist"
-            subheader={`People waiting: ${waiting || "--"}`}
+            subheader={`People waiting: ${waiting}`}
           />
           <VisitTable
             data={visitList?.data || []}
