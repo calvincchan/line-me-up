@@ -56,6 +56,7 @@ export const Dashboard: React.FC = () => {
     return myStation === null;
   }, [myStation]);
 
+  /* get the list of visits */
   const { data: visitList, isLoading: visitLoading } = useList<IVisit>({
     resource: "visit",
     liveMode: "auto",
@@ -66,6 +67,15 @@ export const Dashboard: React.FC = () => {
       },
     ],
   });
+  const waiting = useMemo(() => {
+    if (!visitList?.data) return 0;
+    return visitList?.data.reduce((acc, visit) => {
+      if (visit.status === "Waiting") {
+        return acc + 1;
+      }
+      return acc;
+    }, 0);
+  }, [visitList?.data]);
 
   const [counter, setCounter] = useState(0);
   /* force re-render wait time every 10 seconds */
@@ -141,9 +151,6 @@ export const Dashboard: React.FC = () => {
         </Box>
         <Card variant="outlined">
           <CardHeader
-            sx={{
-              backgroundColor: myStation ? "lightgray" : "",
-            }}
             title={
               myStation ? `My Station: ${myStation.name}` : "Not Checked In"
             }
@@ -245,7 +252,7 @@ export const Dashboard: React.FC = () => {
         <Card variant="outlined">
           <CardHeader
             title="Waitlist"
-            subheader={`People waiting: ${visitList?.total || "--"}`}
+            subheader={`People waiting: ${waiting || "--"}`}
           />
           <VisitTable
             data={visitList?.data || []}
