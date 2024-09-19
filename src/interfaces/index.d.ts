@@ -27,13 +27,14 @@ export type IVisitStatus = (typeof IVisitStatus)[number];
 export interface IVisit {
   id: number;
   visitor: number;
-  visitor_name: string;
+  visitor_name: string; // denormalized
   status: IVisitStatus;
   station: number | null;
+  station_name: string | null; // denormalized
   created_at?: string;
   entered_at: string | null;
   served_at: string | null;
-  served_by_name: string | null;
+  served_by_name: string | null; // denormalized
   station: number | null;
   completed_at: string | null;
   cancelled_at: string | null;
@@ -58,11 +59,11 @@ export interface IStation {
   name: string;
   status: IStationStatus;
   opened_by: string | null;
-  opened_by_name: string | null;
+  opened_by_name: string | null; // denormalized
   opened_at: string | null;
   /* When statis is "Calling" or "Serving" this is set to the related visit id */
   visit: number | null;
-  visitor_name: string | null;
+  visitor_name: string | null; // denormalized
   called_at: string | null;
   served_at: string | null;
 }

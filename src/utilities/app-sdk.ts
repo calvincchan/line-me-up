@@ -135,10 +135,79 @@ export async function callNextVisitor(stationId: number) {
     .update({
       status: "Calling",
       station: stationId,
+      station_name: station.name,
     })
     .eq("id", nextVisit.id);
   if (updateVisitError) {
     throw new Error("Failed to update visit");
+  }
+
+  return true;
+}
+
+export async function cancelCall(stationId: number) {
+  /* check if station is calling */
+  const { data: station } = await supabaseClient
+    .from("station")
+    .select<"*", IStation>()
+    .eq("id", stationId)
+    .single();
+  if (!station) {
+    throw new Error("Station not found");
+  }
+  if (station.status !== "Calling") {
+    throw new Error("Station is not calling");
+  }
+  if (dayjs().diff(station.called_at, "minute") < 1) {
+    throw new Error("Cannot cancel call within 1 minute");
+  }
+  const visitId = station.visit;
+
+  /* update station status */
+  const { error: updateError } = await supabaseClient
+    .from("station")
+    .update({
+      status: "Open",
+      visit: null,
+      visitor_name: null,
+      called_at: null,
+      served_at: null,
+    })
+    .eq("id", stationId);
+  if (updateError) {
+    throw new Error("Failed to update station");
+  }
+
+  /* cancel visit and backup */
+  const { data: visit, error: updateVisitError } = await supabaseClient
+    .from("visit")
+    .update({
+      status: "Cancelled",
+      station: null,
+      station_name: null,
+      cancelled_at: new Date(),
+    })
+    .eq("id", visitId)
+    .select<"*", IVisit>("*")
+    .single();
+  if (updateVisitError) {
+    throw new Error("Failed to update visit");
+  }
+  if (visit) {
+    await supabaseClient.from("previous_visit").insert({
+      visitor: visit.visitor,
+      visitor_name: visit.visitor_name,
+      station: stationId,
+      station_name: station.name,
+      entered_at: visit.entered_at,
+      cancelled_at: visit.cancelled_at,
+      status: "Cancelled",
+      wait_minutes: dayjs(visit.cancelled_at).diff(
+        dayjs(visit.entered_at),
+        "minute"
+      ),
+    });
+    await supabaseClient.from("visit").delete().eq("id", visit.id);
   }
 
   return true;
@@ -179,6 +248,7 @@ export async function startService(stationId: number) {
     .update({
       status: "Serving",
       station: stationId,
+      station_name: station.name,
       served_at: new Date(),
       served_by_name: station.opened_by_name,
     })
@@ -239,6 +309,7 @@ export async function completeService(stationId: number) {
       visitor: visit.visitor,
       visitor_name: visit.visitor_name,
       station: stationId,
+      station_name: station.name,
       entered_at: visit.entered_at,
       served_at: visit.served_at,
       served_by_name: visit.served_by_name,

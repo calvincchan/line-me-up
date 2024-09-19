@@ -18,11 +18,12 @@ import {
 } from "@mui/material";
 import { useGetIdentity, useList } from "@refinedev/core";
 import dayjs from "dayjs";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { VisitTable } from "../../components/visit-table";
 import { IMember, IStation, IVisit } from "../../interfaces";
 import {
   callNextVisitor,
+  cancelCall,
   checkInStation,
   checkOutStation,
   completeService,
@@ -60,11 +61,74 @@ export const Dashboard: React.FC = () => {
     liveMode: "auto",
     sorters: [
       {
-        field: "created_at",
-        order: "desc",
+        field: "entered_at",
+        order: "asc",
       },
     ],
   });
+
+  const [counter, setCounter] = useState(0);
+  /* force re-render wait time every 10 seconds */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCounter((prev) => prev + 1);
+    }, 10 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const onCallNextVisitor = async () => {
+    if (!myStation) return;
+    try {
+      await callNextVisitor(myStation.id);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const onCheckOut = async () => {
+    if (!myStation || !user?.id) return;
+    try {
+      await checkOutStation(user.id, myStation.id);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const onStartService = async () => {
+    if (!myStation) return;
+    try {
+      await startService(myStation.id);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const onCancelCall = async () => {
+    if (!myStation) return;
+    try {
+      await cancelCall(myStation.id);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const onCompleteService = async () => {
+    if (!myStation) return;
+    try {
+      await completeService(myStation.id);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const onCheckIn = async (stationId: number) => {
+    if (!user?.id) return;
+    try {
+      await checkInStation(user.id, user.name, stationId);
+    } catch (error) {
+      alert(error);
+    }
+  };
 
   return (
     <Container maxWidth="md">
@@ -73,7 +137,7 @@ export const Dashboard: React.FC = () => {
           <Typography variant="h6" color="text.secondary">
             {import.meta.env.VITE_LOCATION_NAME} Dashboard
           </Typography>
-          <Typography variant="h4">Welcome, {user?.name}</Typography>
+          <Typography variant="h4">Welcome, {user?.name || "--"}</Typography>
         </Box>
         <Card variant="outlined">
           <CardHeader
@@ -81,9 +145,7 @@ export const Dashboard: React.FC = () => {
               backgroundColor: myStation ? "lightgray" : "",
             }}
             title={
-              myStation
-                ? `My Station: ${myStation.name}`
-                : "No Station Checked In"
+              myStation ? `My Station: ${myStation.name}` : "Not Checked In"
             }
             subheader={`Status: ${myStation?.status || "--"}, Checked In: ${
               myStation?.opened_at
@@ -94,17 +156,18 @@ export const Dashboard: React.FC = () => {
           <CardContent>
             {canOpenStation && (
               <Alert severity="info">
-                You are not serving any station. Please check in to start
+                You are not checked in to any station. Please check in to start
                 serving.
               </Alert>
             )}
             {myStation && myStation.status === "Calling" && (
               <>
                 <Typography variant="h4">
-                  ⏳ Calling: {myStation.visitor_name}{" "}
+                  ⏳ Calling Visitor: {myStation.visitor_name}{" "}
                 </Typography>
-                <Typography variant="h6">
-                  Called: {dayjs(myStation.called_at).format("h:mm A")}
+                <Typography variant="h6" key={`calling-timestamp-${counter}`}>
+                  Called: {dayjs(myStation.called_at).format("h:mm A")} (
+                  {dayjs(myStation.called_at).fromNow()})
                 </Typography>
               </>
             )}
@@ -113,8 +176,9 @@ export const Dashboard: React.FC = () => {
                 <Typography variant="h4">
                   🚀 Serving: {myStation.visitor_name}
                 </Typography>
-                <Typography variant="h6">
-                  Started: {dayjs(myStation.served_at).format("h:mm A")}
+                <Typography variant="h6" key={`serving-timestamp-${counter}`}>
+                  Started: {dayjs(myStation.served_at).format("h:mm A")} (
+                  {dayjs(myStation.served_at).fromNow()})
                 </Typography>
               </>
             )}
@@ -122,32 +186,23 @@ export const Dashboard: React.FC = () => {
           <CardActions>
             {myStation && myStation.status === "Open" && (
               <>
-                <Button
-                  variant="contained"
-                  onClick={() => callNextVisitor(myStation.id)}
-                >
+                <Button variant="contained" onClick={onCallNextVisitor}>
                   Call Next Visitor
                 </Button>
-                <Button>Close</Button>
+                <Button onClick={onCheckOut}>Check Out</Button>
               </>
             )}
             {myStation && myStation.status === "Calling" && (
               <>
-                <Button
-                  variant="contained"
-                  onClick={() => startService(myStation.id)}
-                >
+                <Button variant="contained" onClick={onStartService}>
                   Start Service
                 </Button>
-                <Button>Skip Visitor</Button>
+                <Button onClick={onCancelCall}>Cancel Call</Button>
               </>
             )}
             {myStation && myStation.status === "Serving" && (
               <>
-                <Button
-                  variant="contained"
-                  onClick={() => completeService(myStation.id)}
-                >
+                <Button variant="contained" onClick={onCompleteService}>
                   Complete Service
                 </Button>
               </>
@@ -176,37 +231,8 @@ export const Dashboard: React.FC = () => {
                     <TableCell>{station.opened_by_name || "--"}</TableCell>
                     <TableCell>
                       {canOpenStation && station.status === "Closed" && (
-                        <Button
-                          onClick={async () => {
-                            try {
-                              user?.id &&
-                                station?.id &&
-                                (await checkInStation(
-                                  user.id,
-                                  user.name,
-                                  station.id
-                                ));
-                            } catch (error) {
-                              alert(error);
-                            }
-                          }}
-                        >
+                        <Button onClick={() => onCheckIn(station.id)}>
                           Check In
-                        </Button>
-                      )}
-                      {myStation?.id === station.id && (
-                        <Button
-                          onClick={async () => {
-                            try {
-                              user?.id &&
-                                station?.id &&
-                                (await checkOutStation(user.id, station.id));
-                            } catch (error) {
-                              alert(error);
-                            }
-                          }}
-                        >
-                          Check Out
                         </Button>
                       )}
                     </TableCell>
