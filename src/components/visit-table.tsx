@@ -32,6 +32,15 @@ export const VisitTable: React.FC<Prop> = ({
   }, []);
 
   const fullSpan = showStatus ? 4 : 3;
+
+  function rowStyles(status: string) {
+    return status === "Calling"
+      ? { backgroundColor: "yellow" }
+      : status === "Serving"
+      ? { backgroundColor: "lightgreen" }
+      : {};
+  }
+
   return (
     <TableContainer>
       <Table>
@@ -52,7 +61,7 @@ export const VisitTable: React.FC<Prop> = ({
             </TableRow>
           ) : data.length ? (
             data.map((record, index) => (
-              <TableRow key={record.id}>
+              <TableRow key={record.id} sx={rowStyles(record.status)}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>
                   <strong>{record.visitor_name}</strong>
