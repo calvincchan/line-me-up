@@ -1,3 +1,4 @@
+import { Notifications } from "@mui/icons-material";
 import { Box, Button, Stack } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import GlobalStyles from "@mui/material/GlobalStyles";
@@ -9,6 +10,7 @@ import {
   RefineSnackbarProvider,
   RefineThemes,
   ThemedLayoutV2,
+  ThemedTitleV2,
   useNotificationProvider,
 } from "@refinedev/mui";
 import routerProvider, {
@@ -27,6 +29,20 @@ import { KioskDetails, KioskSubmitted, KioskWelcome } from "./pages/kiosk";
 import { MemberList, MembertEdit } from "./pages/members";
 import { VisitShow } from "./pages/visits";
 import { supabaseClient } from "./utilities/supabase-client";
+
+interface AppTitleProps {
+  collapsed?: boolean;
+}
+
+const AppTitle: React.FC<AppTitleProps> = ({ collapsed = false }) => {
+  return (
+    <ThemedTitleV2
+      collapsed={collapsed}
+      text="Line Up Here"
+      icon={<Notifications />}
+    />
+  );
+};
 
 const App: React.FC = () => {
   return (
@@ -78,7 +94,11 @@ const App: React.FC = () => {
                     key="authenticated-routes"
                     fallback={<CatchAllNavigate to="/login" />}
                   >
-                    <ThemedLayoutV2>
+                    <ThemedLayoutV2
+                      Title={({ collapsed }) => (
+                        <AppTitle collapsed={collapsed} />
+                      )}
+                    >
                       <Outlet />
                     </ThemedLayoutV2>
                   </Authenticated>
@@ -107,6 +127,7 @@ const App: React.FC = () => {
                       rememberMe={false}
                       registerLink={false}
                       forgotPasswordLink={false}
+                      title={<AppTitle />}
                       renderContent={(content, title) => (
                         <>
                           <Stack spacing={2} textAlign="center">
@@ -140,7 +161,11 @@ const App: React.FC = () => {
               <Route
                 element={
                   <Authenticated key="catch-all">
-                    <ThemedLayoutV2>
+                    <ThemedLayoutV2
+                      Title={({ collapsed }) => (
+                        <AppTitle collapsed={collapsed} />
+                      )}
+                    >
                       <Outlet />
                     </ThemedLayoutV2>
                   </Authenticated>
