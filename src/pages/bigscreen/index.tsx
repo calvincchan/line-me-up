@@ -9,7 +9,11 @@ import { BigscreenWrapper } from "./wrapper";
 
 dayjs.extend(relativeTime);
 
-export const PublicScreen: React.FC = () => {
+interface Props {
+  startContent?: React.ReactNode;
+}
+
+export const PublicScreen: React.FC<Props> = ({ startContent }) => {
   const { data: visitList, isLoading: visitLoading } = useList<IVisit>({
     resource: "visit",
     sorters: [
@@ -33,6 +37,7 @@ export const PublicScreen: React.FC = () => {
 
   return (
     <BigscreenWrapper>
+      {startContent}
       <Typography variant="h3" sx={{ textAlign: "center" }}>
         {import.meta.env.VITE_LOCATION_NAME} Waitlist
       </Typography>

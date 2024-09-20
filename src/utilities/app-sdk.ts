@@ -1,6 +1,94 @@
+import { PostgrestError } from "@supabase/supabase-js";
 import dayjs from "dayjs";
-import { IStation, IVisit } from "../interfaces";
+import { IStation, IVisit, IVisitor, IVisitorDetailsForm } from "../interfaces";
+import { cleanNumber } from "./clean-number";
 import { supabaseClient } from "./supabase-client";
+
+/**
+ * Create a new visit record at kiosk.
+ */
+export async function createVisit(formValues: IVisitorDetailsForm): Promise<{
+  status: "existing" | "new";
+  visitId: string;
+}> {
+  const cleanName = String(formValues.name).trim();
+  const cleanPhone = cleanNumber(formValues.phone);
+
+  /* check if the phone number is already registered */
+  const { count: countVisitor } = await supabaseClient
+    .from("visitor")
+    .select("*", { count: "exact", head: true })
+    .eq("phone", cleanPhone)
+    .single();
+  const isRegistered = countVisitor && countVisitor > 0;
+
+  /* Insert or update the visitor data */
+  let visitorData: IVisitor | null = null;
+  let visitorError: PostgrestError | null = null;
+  if (isRegistered) {
+    const { error, data: result } = await supabaseClient
+      .from("visitor")
+      .update({
+        name: cleanName,
+      })
+      .eq("phone", cleanPhone)
+      .select<"*", IVisitor>("*")
+      .single();
+    visitorError = error;
+    visitorData = result;
+  } else {
+    const { error, data: result } = await supabaseClient
+      .from("visitor")
+      .insert({
+        name: cleanName,
+        phone: cleanPhone,
+      })
+      .select<"*", IVisitor>("*")
+      .single();
+    visitorError;
+    visitorData = result;
+  }
+  if (visitorError) {
+    throw new Error("An error occurred:\n" + visitorError.message);
+  }
+  if (!visitorData) {
+    throw new Error("An error occurred: Visitor data is missing");
+  }
+
+  /* Any active visit? */
+  const { data: existingVisitData } = await supabaseClient
+    .from("visit")
+    .select<"id", IVisit>("id")
+    .eq("visitor", visitorData.id)
+    .single();
+  if (existingVisitData) {
+    return {
+      status: "existing",
+      visitId: existingVisitData.id,
+    };
+  }
+
+  /* Create a visit */
+  const { data: visitData } = await supabaseClient
+    .from("visit")
+    .insert({
+      visitor: visitorData.id,
+      visitor_name: visitorData.name,
+      status: "Waiting",
+      entered_at: new Date().toISOString(),
+    })
+    .select<"id", IVisit>("id")
+    .single();
+  if (!visitData) {
+    throw new Error("An error occurred: unable to create a visit");
+  }
+
+  /* Process to status screen */
+  return {
+    status: "new",
+    visitId: visitData.id,
+  };
+}
 
 /**
  * User checks in a closed station.
@@ -303,7 +391,7 @@ export async function completeService(stationId: number) {
     throw new Error("Failed to update visit");
   }
 
-  /* save to history */
+  /* save to history and delete original record */
   if (visit) {
     await supabaseClient.from("previous_visit").insert({
       visitor: visit.visitor,
@@ -340,6 +428,9 @@ export async function visitorCancelVisit(visitId: string) {
   if (!visit) {
     throw new Error("Visit not found");
   }
+  if (visit.status === "Calling") {
+    throw new Error("You cannot cancel a visit that is being called");
+  }
   if (visit.status !== "Waiting") {
     throw new Error("Visit is not waiting");
   }
@@ -371,8 +462,45 @@ export async function visitorCancelVisit(visitId: string) {
     ),
   });
 
-  /* delete visit */
+  /* delete original visit */
   await supabaseClient.from("visit").delete().eq("id", visitId);
 
+  return true;
+}
+
+export async function visitorEditDetails(
+  visitorId: string,
+  formValues: IVisitorDetailsForm
+) {
+  const cleanFormValues: IVisitorDetailsForm = {
+    name: String(formValues.name).trim(),
+    phone: cleanNumber(formValues.phone),
+  };
+
+  /* Update visitor */
+  await supabaseClient
+    .from("visitor")
+    .update(cleanFormValues)
+    .eq("id", visitorId);
+
+  /* Update denormalized values in visit */
+  const { data: visit } = await supabaseClient
+    .from("visit")
+    .update({
+      visitor_name: cleanFormValues.name,
+    })
+    .eq("visitor", visitorId)
+    .select<"*", IVisit>("*")
+    .single();
+
+  /* Update denormalized values in station */
+  if (visit) {
+    await supabaseClient
+      .from("station")
+      .update({
+        visitor_name: cleanFormValues.name,
+      })
+      .eq("visit", visit.id);
+  }
   return true;
 }
