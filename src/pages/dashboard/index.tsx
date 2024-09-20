@@ -170,7 +170,7 @@ export const Dashboard: React.FC = () => {
             {myStation && myStation.status === "Calling" && (
               <>
                 <Typography variant="h4">
-                  ⏳ Calling Visitor: {myStation.visitor_name}{" "}
+                  🔔 Calling Visitor: {myStation.visitor_name}{" "}
                 </Typography>
                 <Typography variant="h6" key={`calling-timestamp-${counter}`}>
                   Called: {dayjs(myStation.called_at).format("h:mm A")} (

@@ -84,7 +84,7 @@ export const VisitTable: React.FC<Prop> = ({
           ) : (
             <TableRow>
               <TableCell colSpan={fullSpan} sx={{ textAlign: "center" }}>
-                No data
+                Empty
               </TableCell>
             </TableRow>
           )}
