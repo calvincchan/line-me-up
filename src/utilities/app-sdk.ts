@@ -329,3 +329,50 @@ export async function completeService(stationId: number) {
 
   return true;
 }
+
+export async function visitorCancelVisit(visitId: string) {
+  /* check if visit is waiting */
+  const { data: visit } = await supabaseClient
+    .from("visit")
+    .select<"*", IVisit>()
+    .eq("id", visitId)
+    .single();
+  if (!visit) {
+    throw new Error("Visit not found");
+  }
+  if (visit.status !== "Waiting") {
+    throw new Error("Visit is not waiting");
+  }
+
+  /* update visit status */
+  const { error: updateError } = await supabaseClient
+    .from("visit")
+    .update({
+      status: "Cancelled",
+      cancelled_at: new Date(),
+    })
+    .eq("id", visitId);
+  if (updateError) {
+    throw new Error("Failed to update visit");
+  }
+
+  /* save to history */
+  await supabaseClient.from("previous_visit").insert({
+    visitor: visit.visitor,
+    visitor_name: visit.visitor_name,
+    station: visit.station,
+    station_name: visit.station_name,
+    entered_at: visit.entered_at,
+    cancelled_at: visit.cancelled_at,
+    status: "Cancelled",
+    wait_minutes: dayjs(visit.cancelled_at).diff(
+      dayjs(visit.entered_at),
+      "minute"
+    ),
+  });
+
+  /* delete visit */
+  await supabaseClient.from("visit").delete().eq("id", visitId);
+
+  return true;
+}

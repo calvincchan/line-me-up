@@ -25,6 +25,7 @@ import { PublicScreen } from "./pages/bigscreen";
 import { Dashboard } from "./pages/dashboard";
 import { KioskDetails, KioskSubmitted, KioskWelcome } from "./pages/kiosk";
 import { MemberList, MembertEdit } from "./pages/members";
+import { VisitShow } from "./pages/visits";
 import { supabaseClient } from "./utilities/supabase-client";
 
 const App: React.FC = () => {
@@ -59,6 +60,10 @@ const App: React.FC = () => {
                 name: "station",
                 list: "/stations",
                 edit: "/stations/edit/:id",
+              },
+              {
+                name: "visit",
+                show: "/visits/:id",
               },
             ]}
             options={{
@@ -129,6 +134,7 @@ const App: React.FC = () => {
                   <Route path="details" element={<KioskDetails />} />
                   <Route path="submitted" element={<KioskSubmitted />} />
                 </Route>
+                <Route path="/visits/:id" element={<VisitShow />} />
               </Route>
 
               <Route

@@ -38,7 +38,7 @@ export const VisitTable: React.FC<Prop> = ({
         <TableHead>
           <TableRow>
             <TableCell></TableCell>
-            <TableCell>Name</TableCell>
+            <TableCell width="70%">Name</TableCell>
             {showStatus && <TableCell>Status</TableCell>}
             <TableCell>Waited</TableCell>
           </TableRow>
@@ -57,10 +57,13 @@ export const VisitTable: React.FC<Prop> = ({
                 <TableCell>
                   <strong>{record.visitor_name}</strong>
                   {record.status === "Calling" && (
-                    <span> → Proceed to {record.station_name}</span>
+                    <span>
+                      {" "}
+                      → 🔔 Proceed to <strong>{record.station_name}</strong>
+                    </span>
                   )}
                   {record.status === "Serving" && (
-                    <span> → {record.station_name}</span>
+                    <span> → 🚀 {record.station_name}</span>
                   )}
                 </TableCell>
                 {showStatus && <TableCell>{record.status}</TableCell>}
