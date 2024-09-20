@@ -36,10 +36,10 @@ export const KioskWelcome: React.FC = () => {
         <CardContent>
           <Stack spacing={4} sx={{ textAlign: "center" }}>
             <Box>
-              <Typography variant="h4">
+              <Typography variant="h5">
                 Welcome to {import.meta.env.VITE_LOCATION_NAME}
               </Typography>
-              <Typography variant="h6">
+              <Typography variant="body1">
                 Address: {import.meta.env.VITE_LOCATION_ADDRESS}
               </Typography>
             </Box>
@@ -54,7 +54,7 @@ export const KioskWelcome: React.FC = () => {
                 onClick={() => navigate("./details")}
                 sx={{ width: "60%" }}
               >
-                Join Line
+                Join Line Now
               </Button>
             </Box>
           </Stack>
