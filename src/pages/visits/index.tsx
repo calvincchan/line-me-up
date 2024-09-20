@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useShow } from "@refinedev/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { IVisit, IVisitor } from "../../interfaces";
 import { visitorCancelVisit } from "../../utilities/app-sdk";
 import { supabaseClient } from "../../utilities/supabase-client";
@@ -27,15 +27,18 @@ const LabelledField: React.FC<{ label: string; value: string | undefined }> = ({
 );
 
 export const VisitShow: React.FC = () => {
-  const { query } = useShow<IVisit>();
+  const { query } = useShow<IVisit>({
+    liveMode: "auto",
+  });
   const { data, isFetching, isError, refetch } = query;
   const visit = data?.data;
-  const [leftWaitlist, setLeftWaitlist] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
   const [openWaitlist, setOpenWaitlist] = useState(false);
-
   const [visitor, setVisitor] = useState<IVisitor | null>(null);
-  const [refetechVisitor, setRefetchVisitor] = useState(0);
+  const [refetchVisitor, setRefetchVisitor] = useState(0);
+  const [isCancelled, setIsCancelled] = useState(false);
+
+  /** Load additional visitor details */
   useEffect(() => {
     async function run() {
       if (visit) {
@@ -48,7 +51,14 @@ export const VisitShow: React.FC = () => {
       }
     }
     run();
-  }, [visit, refetechVisitor]);
+  }, [visit, refetchVisitor]);
+
+  const displayMode = useMemo(() => {
+    if (isCancelled) return "Cancelled";
+    if (isFetching) return "Loading";
+    if (!visit) return "NotFound";
+    return visit.status;
+  }, [isCancelled, isFetching, visit]);
 
   async function onEditDetails() {
     if (!visit) return;
@@ -61,8 +71,14 @@ export const VisitShow: React.FC = () => {
 
   async function onLeaveWaitlist() {
     if (!visit) return;
-    await visitorCancelVisit(visit.id);
-    setLeftWaitlist(true);
+    try {
+      const value = confirm("Are you sure you want to leave the waitlist?");
+      if (!value) return;
+      await visitorCancelVisit(visit.id);
+      setIsCancelled(true);
+    } catch (error) {
+      alert(error);
+    }
   }
 
   return (
@@ -73,13 +89,13 @@ export const VisitShow: React.FC = () => {
             <Typography variant="body1">
               {import.meta.env.VITE_LOCATION_NAME}
             </Typography>
-            {isFetching ? (
+            {displayMode === "Loading" ? (
               <Typography variant="h4" color="text.secondary">
                 Loading...
               </Typography>
-            ) : leftWaitlist ? (
+            ) : displayMode === "Cancelled" ? (
               <Typography variant="h4">You have left the waitlist.</Typography>
-            ) : visit ? (
+            ) : displayMode === "Waiting" ? (
               <>
                 <Typography variant="h4">Thanks for waiting!</Typography>
                 <Box>
@@ -99,11 +115,36 @@ export const VisitShow: React.FC = () => {
                 <Stack spacing={2}>
                   <Button onClick={onEditDetails}>Edit details</Button>
                   <Button onClick={onShowWaitlist}>View waitlist</Button>
-                  <Button onClick={onLeaveWaitlist}>Leave waitlist</Button>
+                  <Button onClick={onLeaveWaitlist} color="secondary">
+                    Leave waitlist
+                  </Button>
                 </Stack>
               </>
+            ) : displayMode === "Calling" ? (
+              <>
+                <Typography variant="h1">🔔</Typography>
+                <Typography variant="h4">It's your turn!</Typography>
+                <Typography variant="h6">
+                  Please proceed to the {visit?.station_name}.
+                </Typography>
+              </>
+            ) : displayMode === "Serving" ? (
+              <>
+                <Typography variant="h1">🚀</Typography>
+                <Typography variant="h4">You are being served.</Typography>
+                <Typography variant="h6">
+                  Your are being served at {visit?.station_name}.
+                </Typography>
+              </>
+            ) : displayMode === "NotFound" ? (
+              <>
+                <Typography variant="h1">👋</Typography>
+                <Typography variant="h4">
+                  You are not in the waitlist.
+                </Typography>
+              </>
             ) : (
-              <Typography variant="h4">You are not in the waitlist.</Typography>
+              <Typography variant="h4">Unknown status</Typography>
             )}
           </Stack>
         </CardContent>
