@@ -9,6 +9,7 @@ import {
 import { useList } from "@refinedev/core";
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router";
+import { useWaitTime } from "../../components/wait-time-context";
 import { IVisit } from "../../interfaces";
 import { KioskWrapper } from "./wrapper";
 
@@ -30,6 +31,8 @@ export const KioskWelcome: React.FC = () => {
     }, 0);
   }, [visitList?.data]);
 
+  const { waitTime } = useWaitTime();
+
   return (
     <KioskWrapper>
       <Card>
@@ -45,7 +48,7 @@ export const KioskWelcome: React.FC = () => {
             </Box>
             <Box>
               <Typography variant="h5">People waiting: {waiting}</Typography>
-              <Typography variant="h5">Estimated time: (TODO)</Typography>
+              <Typography variant="h5">Estimated time: {waitTime}</Typography>
             </Box>
             <Box>
               <Button

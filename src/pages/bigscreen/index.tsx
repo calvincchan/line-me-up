@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import React, { useMemo } from "react";
 import { VisitTable } from "../../components/visit-table";
+import { useWaitTime } from "../../components/wait-time-context";
 import { IVisit } from "../../interfaces";
 import { BigscreenWrapper } from "./wrapper";
 
@@ -35,6 +36,8 @@ export const PublicScreen: React.FC<Props> = ({ startContent }) => {
     }, 0);
   }, [visitList?.data]);
 
+  const { waitTime } = useWaitTime();
+
   return (
     <BigscreenWrapper>
       {startContent}
@@ -44,7 +47,7 @@ export const PublicScreen: React.FC<Props> = ({ startContent }) => {
       <Typography variant="h5" sx={{ textAlign: "center" }}>
         {waiting} waiting
         <br />
-        Estimated time: (TODO)
+        Estimated time: {waitTime}
       </Typography>
       <VisitTable data={visitList?.data ?? []} loading={visitLoading} />
     </BigscreenWrapper>

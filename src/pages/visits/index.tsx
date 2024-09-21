@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { useShow } from "@refinedev/core";
 import React, { useEffect, useMemo, useState } from "react";
+import { useWaitTime } from "../../components/wait-time-context";
 import { IVisit, IVisitor } from "../../interfaces";
 import { visitorCancelVisit } from "../../utilities/app-sdk";
 import { supabaseClient } from "../../utilities/supabase-client";
@@ -81,6 +82,8 @@ export const VisitShow: React.FC = () => {
     }
   }
 
+  const { waitTime } = useWaitTime();
+
   return (
     <KioskWrapper>
       <Card>
@@ -104,7 +107,7 @@ export const VisitShow: React.FC = () => {
                 <Box>
                   <small>Estimated wait</small>
                   <br />
-                  <Typography variant="h6">10-15 mins</Typography>
+                  <Typography variant="h6">{waitTime}</Typography>
                 </Box>
                 <Divider />
                 <Stack spacing={2}>
