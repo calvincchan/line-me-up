@@ -30,7 +30,7 @@ import {
   startService,
 } from "../../utilities/app-sdk";
 
-export const Dashboard: React.FC = () => {
+export const DashboardList: React.FC = () => {
   const { data: user } = useGetIdentity<IMember>();
 
   const { data: stationList, isLoading: stationLoading } = useList<IStation>({

@@ -1,4 +1,4 @@
-import { Notifications } from "@mui/icons-material";
+import { Dashboard, Notifications } from "@mui/icons-material";
 import { Box, Button, Stack } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import GlobalStyles from "@mui/material/GlobalStyles";
@@ -25,7 +25,7 @@ import { accessControlProvider } from "./access-control-provider";
 import authProvider from "./auth-provider";
 import { WaitTimeProvider } from "./components/wait-time-context";
 import { PublicScreen } from "./pages/bigscreen";
-import { Dashboard } from "./pages/dashboard";
+import { DashboardList } from "./pages/dashboard";
 import { KioskDetails, KioskSubmitted, KioskWelcome } from "./pages/kiosk";
 import { MemberList, MembertEdit } from "./pages/members";
 import { VisitShow } from "./pages/visits";
@@ -106,7 +106,7 @@ const App: React.FC = () => {
                     </Authenticated>
                   }
                 >
-                  <Route index element={<Dashboard />} />
+                  <Route index element={<DashboardList />} />
 
                   <Route path="/members">
                     <Route index element={<MemberList />} />
