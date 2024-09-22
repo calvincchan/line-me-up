@@ -39,7 +39,7 @@ const AppTitle: React.FC<AppTitleProps> = ({ collapsed = false }) => {
   return (
     <ThemedTitleV2
       collapsed={collapsed}
-      text="Line Up Here"
+      text="Line Me Up"
       icon={<Notifications />}
     />
   );

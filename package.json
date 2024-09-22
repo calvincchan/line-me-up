@@ -1,7 +1,7 @@
 {
-  "name": "auth-material-ui",
+  "name": "line-me-up",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "scripts": {
     "build": "tsc && refine build",

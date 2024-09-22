@@ -2,7 +2,9 @@
 
 ## Description
 
-This is a simple waitlist management system for restaurants, retail stores, or any other business that has a waitlist. It allows customers to add themselves to a waitlist and for the business to manage the waitlist.
+This is a simple waitlist management system for restaurants, retail stores, or any other business that need visitors to line up for services. It allows visitors to add themselves to a waitlist at a kiosk or on their own mobile device. Multiple staffs can handle the waitlist simultaneously. The system will notify visitors when it's their turn.
+
+Line Me Up is built with [Supabase](https://supabase.io) as the backend and [refinejs](https://refine.dev) as the frontend.
 
 ## Installation
 
@@ -26,3 +28,11 @@ This is a simple waitlist management system for restaurants, retail stores, or a
 4. Run `npm install` or `yarn install` to install the dependencies.
 
 5. Run `npm dev` or `yarn dev` to start the frontend.
+
+# FUTURE
+
+- [ ] Add "Service" attribute to a visit (e.g. "Refund & Exchange", "Delivery", "Dinner", "Pickup", etc.)
+- [ ] Support SMS
+- [ ] CRUD stations
+- [ ] Improve CRUD members
+- [ ] Analytics
