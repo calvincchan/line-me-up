@@ -1,5 +1,4 @@
 import { AuthProvider } from "@refinedev/core";
-import { acl } from "./acl";
 import { IMember } from "./interfaces";
 import { supabaseClient } from "./utilities/supabase-client";
 
@@ -102,7 +101,7 @@ const authProvider: AuthProvider = {
         email,
         {
           redirectTo: `${window.location.origin}/update-password`,
-        }
+        },
       );
 
       if (error) {
@@ -228,9 +227,6 @@ const authProvider: AuthProvider = {
     } else {
       localStorage.removeItem("memberRole");
     }
-
-    /* Immediately load permission table */
-    await acl.load(userRole);
 
     return {
       authenticated: true,

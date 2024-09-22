@@ -1,52 +1,42 @@
 export const Permission = [
-  "members:list",
-  "members:create",
-  "members:edit",
-  "members:delete",
+  "dashboard:list",
+  "member:list",
+  "member:create",
+  "member:edit",
+  "member:delete",
 ] as const;
 
 export type Permission = (typeof Permission)[number];
 
-const DEFAULT_PERMISSION_TABLE = new Map<string, Permission[]>([
-  ["Owner", [...Permission]],
+const DEFAULT_PERMISSION_TABLE = new Map<string, Set<Permission>>([
+  ["Owner", new Set<Permission>([...Permission])],
   [
     "Admin",
-    ["members:list", "members:create", "members:edit", "members:delete"],
+    new Set([
+      "dashboard:list",
+      "member:list",
+      "member:create",
+      "member:edit",
+      "member:delete",
+    ]),
   ],
-  ["Staff", []],
+  [
+    "Staff",
+    new Set([
+      "dashboard:list",
+    ]),
+  ],
 ]);
 
 export class AccessControl {
-  allowed = new Set<string>();
-  loaded: boolean = false;
-  role: string = "";
-
-  /* Load permission table of a given role */
-  async load(role: string) {
-    /* Prevent loading if the permission list is loaded */
-    if (this.loaded) return true;
-    /* Defer loading if role is not defined */
-    if (role === "") {
+  async can(role: string, resource: string, action: string) {
+    console.log("🚀 ~ AccessControl ~ can", action, resource, role);
+    const allowed = DEFAULT_PERMISSION_TABLE.get(role);
+    if (!allowed) {
       throw new Error(`Role "${role}" is not defined`);
     }
-    this.role = role;
-    const permissions = DEFAULT_PERMISSION_TABLE.get(role);
-    if (!permissions) {
-      throw new Error("Role not found in default permission table");
-    }
-    permissions.forEach((p) => {
-      this.allowed.add(p);
-    });
-    this.loaded = true;
-  }
-
-  async can(role: string, resource: string, action: string) {
-    if (role !== this.role) {
-      this.loaded = false;
-      this.load(role);
-    }
-    const key = resource + ":" + action;
-    if (this.allowed.has(key)) {
+    const key = resource + ":" + action as Permission;
+    if (allowed.has(key)) {
       return true;
     } else {
       return false;
