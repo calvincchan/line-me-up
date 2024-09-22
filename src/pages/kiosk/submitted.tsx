@@ -30,13 +30,15 @@ export const KioskSubmitted: React.FC = () => {
             <Typography variant="h5">Estimated time: {waitTime}</Typography>
             {visitId && (
               <Typography variant="body1">
-                You can continue to check your wait status at:
+                A status page link has been sent to your phone.
                 <br />
-                <Link to={`/visits/${visitId}`}>Your status page</Link>
+                You can also scan the QR code below to view your status.
               </Typography>
             )}
             <Box alignItems="center">
               <QRCode value={window.location.origin + `/visits/${visitId}`} />
+              <br />
+              <Link to={`/visits/${visitId}`}>Your status page</Link>
             </Box>
             <Box>
               <Button
