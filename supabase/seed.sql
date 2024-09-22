@@ -193,3 +193,11 @@ AFTER INSERT
 OR
 UPDATE ON auth.users FOR EACH ROW
 EXECUTE FUNCTION public.auth_users_i_u ();
+
+-- Create new stations
+INSERT INTO
+  station (NAME)
+VALUES
+  ('Station 1'),
+  ('Station 2'),
+  ('Station 3');
