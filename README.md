@@ -1,43 +1,28 @@
-<div align="center" style="margin: 30px;">
-<a href="https://refine.dev/">
-  <img alt="refine logo" src="https://refine.ams3.cdn.digitaloceanspaces.com/readme/refine-readme-banner.png">
-</a>
+# Line Me Up
 
-</br>
-</br>
+## Description
 
-<div align="center">
-    <a href="https://refine.dev">Home Page</a> |
-    <a href="https://discord.gg/refine">Discord</a> |
-    <a href="https://refine.dev/examples/">Examples</a> |
-    <a href="https://refine.dev/blog/">Blog</a> |
-    <a href="https://refine.dev/docs/">Documentation</a>
-</div>
-</div>
+This is a simple waitlist management system for restaurants, retail stores, or any other business that has a waitlist. It allows customers to add themselves to a waitlist and for the business to manage the waitlist.
 
-</br>
-</br>
+## Installation
 
-<div align="center"><strong>Build your <a href="https://reactjs.org/">React</a>-based CRUD applications, without constraints.</strong><br>An open source, headless web application framework developed with flexibility in mind.
+1. Clone the repository.
 
-<br />
-<br />
+2. Prepare the backend Supabase. If you just want to test locally, using [Supabase CLI](https://supabase.com/docs/guides/cli):
 
-[![Discord](https://img.shields.io/discord/837692625737613362.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/refine)
-[![Twitter Follow](https://img.shields.io/twitter/follow/refine_dev?style=social)](https://twitter.com/refine_dev)
+   - `cd supabase`
+   - `supabase start` and note the "API URL" and "anon key". You will need these to configure the frontend in the next step.
+   - Open the `Studio URL` in your browser, and do the following: (TODO: automate this)
+     - Create the first admin (owner) by going to Authenitcation -> Users -> Add user -> Create new user.
+     - Trun on "Realtime" for the following tables: `station`, `visit`, `visitor` in Table Editor.
 
-<a href="https://www.producthunt.com/posts/refine-3?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-refine&#0045;3" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=362220&theme=light&period=daily" alt="refine - 100&#0037;&#0032;open&#0032;source&#0032;React&#0032;framework&#0032;to&#0032;build&#0032;web&#0032;apps&#0032;3x&#0032;faster | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+   A new testing admin will be created for you: `admin@supabase.io` and password: `supabase`.
 
-</div>
+3. Create a `.env` file (or `.env.local` file) in the root of the project.
 
-## Try this example on your local
+   - `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` with the values from the previous step.
+   - Optionally you can set `VITE_LOCATION_NAME` and `VITE_LOCATION_ADDRESS` to customize the location name and address displayed in the app.
 
-```bash
-npm create refine-app@latest -- --example auth-material-ui
-```
+4. Run `npm install` or `yarn install` to install the dependencies.
 
-## Try this example on CodeSandbox
-
-<br/>
-
-[![Open auth-material-ui example from refine](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/embed/github/refinedev/refine/tree/master/examples/auth-material-ui?view=preview&theme=dark&codemirror=1)
+5. Run `npm dev` or `yarn dev` to start the frontend.
