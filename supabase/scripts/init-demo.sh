@@ -1,7 +1,7 @@
 # Simple script to initialize the demo account and stations.
 
 OWNER_EMAIL=owner@supabase.io
-OWNER_PASSWORD=supabase
+OWNER_PASSWORD=`openssl rand -base64 18`
 
 supabase status --output env > __temp_env;
 source __temp_env;
@@ -14,7 +14,7 @@ function call_api {
 
 # Create the demo user account
 echo "Creating demo owner account...";
-call_api $API_URL/auth/v1/admin/users '{"email": "$OWNER_EMAIL","$OWNER_PASSWORD": "supabase","email_confirm": true}';
+call_api $API_URL/auth/v1/admin/users '{"email": "$OWNER_EMAIL","password": "$OWNER_PASSWORD","email_confirm": true}';
 
 # Create 3 stations
 echo "Creating demo stations...";
@@ -22,3 +22,11 @@ call_api $API_URL/rest/v1/station '{"name": "Station 1"}';
 call_api $API_URL/rest/v1/station '{"name": "Station 2"}';
 call_api $API_URL/rest/v1/station '{"name": "Station 3"}';
 
+echo "You can now login with the following credentials:";
+echo "Email: $OWNER_EMAIL";
+echo "Password: $OWNER_PASSWORD";
+echo "You can also find the credentials in the file credentials.txt";
+
+# Save the credentials to a file
+echo "Email: $OWNER_EMAIL" > credentials.txt;
+echo "Password: $OWNER_PASSWORD" >> credentials.txt;

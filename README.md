@@ -21,9 +21,7 @@ Line Me Up is built with [Supabase](https://supabase.io) as the backend and [ref
    - `cd supabase`
    - `supabase start` and note the "API URL" and "anon key". You will need these to configure the frontend in the next step. If you need to see the key again, run `supabase status`.
    - `supabase migrations up` to create the database schema.
-   - If you just want to quickly test the app, you can run `./scripts/init-demo.sh`. This will create a few stations and a login user for you. You can login with:
-     - email: `owner@supabase.io`
-     - password: `supabase`
+   - If you just want to quickly test the app, you can run `./scripts/init-demo.sh`. This will create a few stations and a login user for you. You can find the login email and password in `credentials.txt` after running the script.
 
 3. Create a `.env` file (or `.env.local` file) in the root of the project.
 
