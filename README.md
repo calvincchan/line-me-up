@@ -5,6 +5,7 @@
 This is a simple waitlist management system for restaurants, retail stores, or any other business that need visitors to line up for services. It allows visitors to add themselves to a waitlist at a kiosk or on their own mobile device. Multiple staffs can handle the waitlist simultaneously. The system will notify visitors when it's their turn.
 
 Introduction video:
+
 <a href="https://vimeo.com/1011820436">
 <img src="./video-thumbnail.png" height="200">
 </a>
