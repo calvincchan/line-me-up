@@ -6,7 +6,7 @@ This is a simple waitlist management system for restaurants, retail stores, or a
 
 Introduction video:
 
-<a href="https://vimeo.com/1011820436">
+<a href="[https://vimeo.com/1011820436](https://www.youtube.com/watch?v=p1OwccZgKsA)">
 <img src="./video-thumbnail.png" height="200">
 </a>
 
